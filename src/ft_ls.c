@@ -8,7 +8,6 @@ int main(int argc, char **argv) {
   start_index = parse_options(argc, argv, &ls);
 
   if (start_index >= argc) {
-    // No arguments provided, list current directory
     handle_directory(&ls, ".");
   } else {
     parse_arguments(argc, argv, &ls, start_index);
