@@ -1,33 +1,32 @@
 NAME = ft_ls
-LIBFT = ./libft/libft.a
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft/includes
-SRC = ft_ls.c src/parsing.c src/file_info.c src/options.c \
-      src/display.c src/recursion.c src/utils.c
+
+SRC_DIR = src
 OBJ_DIR = obj
-OBJ = $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.c=.o)))
+INC_DIR = include
+
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+INCLUDES = -I$(INC_DIR)
+
+CC = cc
+CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
 
 all: $(NAME)
 
-$(LIBFT):
-	make -C libft
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
-$(OBJ_DIR):
-	@mkdir -p $(OBJ_DIR)
-
-$(OBJ_DIR)/%.o: src/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME): $(LIBFT) $(OBJ_DIR) $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) -o $(NAME)
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 clean:
 	rm -rf $(OBJ_DIR)
-	make -C libft clean
 
 fclean: clean
 	rm -f $(NAME)
-	make -C libft fclean
 
 re: fclean all
 
