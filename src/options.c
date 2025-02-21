@@ -1,65 +1,38 @@
 #include "../includes/ft_ls.h"
 
-void sort_files(t_ls *ls) {
-  t_file *sorted = NULL;
-  t_file *current = ls->files;
-  t_file *next;
+void parse_options(int argc, char **argv, t_options *options)
+{
+    int i, j;
 
-  while (current) {
-    next = current->next;
-    current->next = NULL;
-
-    if (!sorted)
-      sorted = current;
-    else {
-      t_file *temp = sorted;
-      t_file *prev = NULL;
-      int insert = 0;
-
-      while (temp && !insert) {
-        int cmp;
-
-        if (ls->options & OPT_t)
-          cmp = temp->stats.st_mtime - current->stats.st_mtime;
-        else
-          cmp = ft_strcmp(temp->name, current->name);
-
-        if (cmp > 0) {
-          if (prev)
-            prev->next = current;
-          else
-            sorted = current;
-          current->next = temp;
-          insert = 1;
+    for (i = 1; i < argc; i++)
+    {
+        if (argv[i][0] == '-')
+        {
+            for (j = 1; argv[i][j] != '\0'; j++)
+            {
+                switch (argv[i][j])
+                {
+                case 'l':
+                    options->opt_l = true;
+                    break;
+                case 'R':
+                    options->opt_R = true;
+                    break;
+                case 'a':
+                    options->opt_a = true;
+                    break;
+                case 'r':
+                    options->opt_r = true;
+                    break;
+                case 't':
+                    options->opt_t = true;
+                    break;
+                default:
+                    fprintf(stderr, "ft_ls: illegal option -- %c\n", argv[i][j]);
+                    fprintf(stderr, "usage: ft_ls [-lRart] [file ...]\n");
+                    exit(1);
+                }
+            }
         }
-        prev = temp;
-        temp = temp->next;
-      }
-      if (!insert) {
-        prev->next = current;
-      }
     }
-    current = next;
-  }
-  ls->files = sorted;
-}
-
-void reverse_list(t_ls *ls) {
-  t_file *prev = NULL;
-  t_file *current = ls->files;
-  t_file *next;
-
-  while (current) {
-    next = current->next;
-    current->next = prev;
-    prev = current;
-    current = next;
-  }
-  ls->files = prev;
-}
-
-int should_show_file(t_ls *ls, const char *name) {
-  if (ls->options & OPT_a)
-    return 1;
-  return (name[0] != '.');
 }

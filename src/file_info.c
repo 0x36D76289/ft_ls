@@ -1,98 +1,151 @@
 #include "../includes/ft_ls.h"
 
-t_file *create_file_node(const char *name, const char *path) {
-  t_file *new_file;
+size_t get_username_width(struct passwd *pw, uid_t uid)
+{
+    if (pw != NULL)
+        return strlen(pw->pw_name);
+    char uid_str[32];
+    return snprintf(uid_str, sizeof(uid_str), "%d", uid);
+}
 
-  new_file = (t_file *)malloc(sizeof(t_file));
-  if (!new_file)
-    return NULL;
+size_t get_groupname_width(struct group *gr, gid_t gid)
+{
+    if (gr != NULL)
+        return strlen(gr->gr_name);
+    char gid_str[32];
+    return snprintf(gid_str, sizeof(gid_str), "%d", gid);
+}
 
-  new_file->name = ft_strdup(name);
-  new_file->path = ft_strdup(path);
-  new_file->link_path = NULL;
-  new_file->next = NULL;
-
-  if (lstat(path, &new_file->stats) == -1) {
-    free(new_file->name);
-    free(new_file->path);
-    free(new_file);
-    return NULL;
-  }
-
-  // Handle symbolic links
-  if (S_ISLNK(new_file->stats.st_mode)) {
-    new_file->link_path = (char *)malloc(1024);
-    if (new_file->link_path) {
-      ssize_t len = readlink(path, new_file->link_path, 1023);
-      if (len != -1)
-        new_file->link_path[len] = '\0';
-      else {
-        free(new_file->link_path);
-        new_file->link_path = NULL;
-      }
+t_file_info *get_file_info(const char *path, const char *name)
+{
+    t_file_info *file = (t_file_info *)malloc(sizeof(t_file_info));
+    if (file == NULL)
+    {
+        handle_error("Memory allocation failed");
+        return NULL;
     }
-  }
 
-  return new_file;
+    file->name = strdup(name);
+    if (file->name == NULL)
+    {
+        handle_error("Memory allocation failed (strdup)");
+        free(file);
+        return NULL;
+    }
+
+    file->path = malloc(strlen(path) + strlen(name) + 2);
+    if (file->path == NULL)
+    {
+        handle_error("Memory allocation failed (path)");
+        free(file->name);
+        free(file);
+        return NULL;
+    }
+
+    strcpy(file->path, path);
+    if (path[strlen(path) - 1] != '/')
+        strcat(file->path, "/");
+    strcat(file->path, name);
+
+    if (lstat(file->path, &file->stat_info) == -1)
+    {
+        handle_error(file->path);
+        free(file->path);
+        free(file->name);
+        free(file);
+        return NULL;
+    }
+    file->next = NULL;
+    return file;
 }
 
-void update_padding(t_ls *ls, t_file *file) {
-  struct passwd *pwd;
-  struct group *grp;
-  int len;
-
-  pwd = getpwuid(file->stats.st_uid);
-  grp = getgrgid(file->stats.st_gid);
-
-  len = ft_numlen(file->stats.st_nlink);
-  ls->max_links = (len > ls->max_links) ? len : ls->max_links;
-
-  len = ft_numlen(file->stats.st_size);
-  ls->max_size = (len > ls->max_size) ? len : ls->max_size;
-
-  len = pwd ? ft_strlen(pwd->pw_name) : ft_numlen(file->stats.st_uid);
-  ls->max_user = (len > ls->max_user) ? len : ls->max_user;
-
-  len = grp ? ft_strlen(grp->gr_name) : ft_numlen(file->stats.st_gid);
-  ls->max_group = (len > ls->max_group) ? len : ls->max_group;
-}
-
-void insert_file(t_ls *ls, t_file *new_file) {
-  if (!new_file)
-    return;
-
-  update_padding(ls, new_file);
-  ls->total_blocks += new_file->stats.st_blocks;
-
-  // Insert at head if list is empty
-  if (!ls->files) {
-    ls->files = new_file;
-    return;
-  }
-
-  // Insert according to sort criteria
-  t_file *curr = ls->files;
-  t_file *prev = NULL;
-
-  while (curr) {
-    int cmp;
-    if (ls->options & OPT_t)
-      cmp = curr->stats.st_mtime - new_file->stats.st_mtime;
+void print_file_info(t_file_info *file, t_options *options)
+{
+    if (options->opt_l)
+        print_long_format(file);
     else
-      cmp = ft_strcmp(curr->name, new_file->name);
+        printf("%s  ", file->name);
+}
 
-    if (cmp > 0) {
-      new_file->next = curr;
-      if (prev)
-        prev->next = new_file;
-      else
-        ls->files = new_file;
-      return;
+void print_long_format(t_file_info *file)
+{
+    struct passwd *pw = getpwuid(file->stat_info.st_uid);
+    struct group *gr = getgrgid(file->stat_info.st_gid);
+    char time_str[20];
+    char *time_format;
+    char size_str[32];
+
+    // Format the size string with appropriate units
+    snprintf(size_str, sizeof(size_str), "%lld", (long long)file->stat_info.st_size);
+
+    // Permissions (fixed width of 10 characters + space)
+    printf((S_ISDIR(file->stat_info.st_mode)) ? "d" : "-");
+    printf((file->stat_info.st_mode & S_IRUSR) ? "r" : "-");
+    printf((file->stat_info.st_mode & S_IWUSR) ? "w" : "-");
+    printf((file->stat_info.st_mode & S_IXUSR) ? "x" : "-");
+    printf((file->stat_info.st_mode & S_IRGRP) ? "r" : "-");
+    printf((file->stat_info.st_mode & S_IWGRP) ? "w" : "-");
+    printf((file->stat_info.st_mode & S_IXGRP) ? "x" : "-");
+    printf((file->stat_info.st_mode & S_IROTH) ? "r" : "-");
+    printf((file->stat_info.st_mode & S_IWOTH) ? "w" : "-");
+    printf((file->stat_info.st_mode & S_IXOTH) ? "x" : "-");
+    printf("  ");
+
+    // Number of hard links (right-aligned, minimum 4 characters)
+    printf("%4lu ", (unsigned long)file->stat_info.st_nlink);
+
+    // User name and group name (with 2 spaces between them)
+    if (pw != NULL)
+        printf("%-8s  ", pw->pw_name);
+    else
+        printf("%-8d  ", file->stat_info.st_uid);
+
+    if (gr != NULL)
+        printf("%-8s  ", gr->gr_name);
+    else
+        printf("%-8d  ", file->stat_info.st_gid);
+
+    // File size (right-aligned, minimum 8 characters)
+    printf("%8s ", size_str);
+
+    // Time format
+    time_t now = time(NULL);
+    if (file->stat_info.st_mtime > now - (6 * 30 * 24 * 60 * 60) && file->stat_info.st_mtime <= now)
+        time_format = "%b %e %H:%M";
+    else
+        time_format = "%b %e  %Y";
+    strftime(time_str, sizeof(time_str), time_format, localtime(&file->stat_info.st_mtime));
+    printf("%s ", time_str);
+
+    // File name
+    printf("%s", file->name);
+
+    // Symbolic link
+    if (S_ISLNK(file->stat_info.st_mode))
+    {
+        char link_target[1024];
+        ssize_t len = readlink(file->path, link_target, sizeof(link_target) - 1);
+        if (len != -1)
+        {
+            link_target[len] = '\0';
+            printf(" -> %s", link_target);
+        }
     }
-    prev = curr;
-    curr = curr->next;
-  }
 
-  // Insert at end
-  prev->next = new_file;
+    printf("\n");
+}
+
+void free_file_info_list(t_file_info *head)
+{
+    t_file_info *current = head;
+    t_file_info *next;
+
+    while (current != NULL)
+    {
+        next = current->next;
+        free(current->name);
+        free(current->path);
+        free(current);
+        current = next;
+    }
 }
