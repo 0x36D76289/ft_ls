@@ -4,11 +4,27 @@ static int	compare_files(t_file *a, t_file *b, t_options *options)
 {
 	int	result;
 
+	if (options->flags & OPT_F)
+		return (0);
+
 	if (options->flags & OPT_T)
 	{
-		if (a->stat.st_mtime > b->stat.st_mtime)
+		time_t time_a, time_b;
+		
+		if (options->flags & OPT_U)
+		{
+			time_a = a->stat.st_atime;
+			time_b = b->stat.st_atime;
+		}
+		else
+		{
+			time_a = a->stat.st_mtime;
+			time_b = b->stat.st_mtime;
+		}
+
+		if (time_a > time_b)
 			result = -1;
-		else if (a->stat.st_mtime < b->stat.st_mtime)
+		else if (time_a < time_b)
 			result = 1;
 		else
 			result = ft_strcmp(a->name, b->name);
@@ -87,6 +103,10 @@ void	reverse_list(t_file **files)
 void	sort_files(t_file **files, t_options *options)
 {
 	if (!files || !*files)
+		return;
+
+	// Option -f: do not sort at all
+	if (options->flags & OPT_F)
 		return;
 
 	bubble_sort(*files, options);

@@ -33,6 +33,16 @@ int	list_directory(char *path, t_options *options)
 		return (1);
 	}
 
+	if ((options->flags & OPT_D) && S_ISDIR(path_stat.st_mode))
+	{
+		files = create_file_node(path, path);
+		if (!files)
+			return (1);
+		display_files(files, options);
+		free_file_list(files);
+		return (0);
+	}
+
 	if (!S_ISDIR(path_stat.st_mode))
 	{
 		files = create_file_node(path, path);

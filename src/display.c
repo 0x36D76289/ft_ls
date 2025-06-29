@@ -148,6 +148,38 @@ static void print_time(time_t time_val)
 	}
 }
 
+static char *get_file_color(mode_t mode, t_options *options)
+{
+	if (!(options->flags & OPT_COLOR))
+		return ("");
+	
+	if (S_ISDIR(mode))
+		return (COLOR_DIR);
+	else if (S_ISLNK(mode))
+		return (COLOR_LINK);
+	else if (mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+		return (COLOR_EXEC);
+	else if (S_ISCHR(mode))
+		return (COLOR_CHR);
+	else if (S_ISBLK(mode))
+		return (COLOR_BLK);
+	else if (S_ISFIFO(mode))
+		return (COLOR_FIFO);
+	else if (S_ISSOCK(mode))
+		return (COLOR_SOCK);
+	return (COLOR_REG);
+}
+
+static void print_colored_name(char *name, mode_t mode, t_options *options)
+{
+	char *color = get_file_color(mode, options);
+	
+	ft_putstr_fd(color, 1);
+	ft_putstr_fd(name, 1);
+	if (options->flags & OPT_COLOR)
+		ft_putstr_fd(COLOR_RESET, 1);
+}
+
 static void print_username(uid_t uid, int width)
 {
 	struct passwd *pwd;
@@ -204,7 +236,7 @@ static void print_groupname(gid_t gid, int width)
 	}
 }
 
-static void display_long_format_with_widths(t_file *file, t_column_widths *widths)
+static void display_long_format_with_widths(t_file *file, t_column_widths *widths, t_options *options)
 {
 	display_permissions(file->stat.st_mode);
 	ft_putchar_fd(' ', 1);
@@ -212,8 +244,12 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 	print_right_aligned_number(file->stat.st_nlink, widths->nlink_width);
 	ft_putchar_fd(' ', 1);
 
-	print_username(file->stat.st_uid, widths->user_width);
-	ft_putchar_fd(' ', 1);
+	// Option -g: skip owner information
+	if (!(options->flags & OPT_G))
+	{
+		print_username(file->stat.st_uid, widths->user_width);
+		ft_putchar_fd(' ', 1);
+	}
 
 	print_groupname(file->stat.st_gid, widths->group_width);
 	ft_putchar_fd(' ', 1);
@@ -221,10 +257,14 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 	print_right_aligned_number(file->stat.st_size, widths->size_width);
 	ft_putchar_fd(' ', 1);
 
-	print_time(file->stat.st_mtime);
+	// Option -u: show access time instead of modification time
+	if (options->flags & OPT_U)
+		print_time(file->stat.st_atime);
+	else
+		print_time(file->stat.st_mtime);
 	ft_putchar_fd(' ', 1);
 
-	ft_putstr_fd(file->name, 1);
+	print_colored_name(file->name, file->stat.st_mode, options);
 	if (S_ISDIR(file->stat.st_mode))
 		ft_putchar_fd('/', 1);
 	else if (file->stat.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
@@ -235,7 +275,8 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 void display_long_format(t_file *file)
 {
 	t_column_widths widths = {3, 8, 8, 8};
-	display_long_format_with_widths(file, &widths);
+	t_options default_options = {0};
+	display_long_format_with_widths(file, &widths, &default_options);
 }
 
 void display_files(t_file *files, t_options *options)
@@ -256,7 +297,7 @@ void display_files(t_file *files, t_options *options)
 		
 		while (current)
 		{
-			display_long_format_with_widths(current, &widths);
+			display_long_format_with_widths(current, &widths, options);
 			current = current->next;
 		}
 	}
@@ -264,7 +305,7 @@ void display_files(t_file *files, t_options *options)
 	{
 		while (current)
 		{
-			ft_putstr_fd(current->name, 1);
+			print_colored_name(current->name, current->stat.st_mode, options);
 			if (S_ISDIR(current->stat.st_mode))
 				ft_putchar_fd('/', 1);
 			if (current->next)
