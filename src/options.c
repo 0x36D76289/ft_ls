@@ -12,6 +12,16 @@ static int	parse_option_char(char c, t_options *options)
 		options->flags |= OPT_REV;
 	else if (c == 't')
 		options->flags |= OPT_T;
+	else if (c == 'u')
+		options->flags |= OPT_U;
+	else if (c == 'f')
+		options->flags |= OPT_F;
+	else if (c == 'g')
+		options->flags |= OPT_G;
+	else if (c == 'd')
+		options->flags |= OPT_D;
+	else if (c == 'G')
+		options->flags |= OPT_COLOR;
 	else
 	{
 		ft_putstr_fd("ft_ls: invalid option -- '", 2);

@@ -14,11 +14,27 @@
 #include "../libft/include/libft.h"
 
 /* Option flags */
-#define OPT_L 1	  // -l: long format
-#define OPT_R 2	  // -R: recursive
-#define OPT_A 4	  // -a: show hidden files
-#define OPT_REV 8 // -r: reverse order
-#define OPT_T 16  // -t: sort by time
+#define OPT_L 1	   // -l: long format
+#define OPT_R 2	   // -R: recursive
+#define OPT_A 4	   // -a: show hidden files
+#define OPT_REV 8  // -r: reverse order
+#define OPT_T 16   // -t: sort by time
+#define OPT_U 32   // -u: sort by access time / show access time
+#define OPT_F 64   // -f: do not sort
+#define OPT_G 128  // -g: long format without owner / colorized output
+#define OPT_D 256  // -d: list directories themselves
+#define OPT_COLOR 512  // -G: colorized output
+
+/* Colors for file types */
+#define COLOR_RESET   "\033[0m"
+#define COLOR_DIR     "\033[1;34m"  // Blue
+#define COLOR_LINK    "\033[1;36m"  // Cyan
+#define COLOR_EXEC    "\033[1;32m"  // Green
+#define COLOR_REG     "\033[0m"     // Default
+#define COLOR_CHR     "\033[1;33m"  // Yellow
+#define COLOR_BLK     "\033[1;33m"  // Yellow
+#define COLOR_FIFO    "\033[1;35m"  // Magenta
+#define COLOR_SOCK    "\033[1;35m"  // Magenta
 
 /* File types for display */
 #define TYPE_DIR 'd'
