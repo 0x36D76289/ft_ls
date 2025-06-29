@@ -1,47 +1,46 @@
-#include "../includes/ft_ls.h"
+#include "../include/ft_ls.h"
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-    t_options options = {false, false, false, false, false};
-    int i;
-    int file_count = 0;
+	t_options	options;
+	char		**paths;
+	int			path_count;
+	int			i;
+	int			j;
 
-    parse_options(argc, argv, &options);
-
-    for (i = 1; i < argc; i++)
-    {
-        if (argv[i][0] != '-')
-            file_count++;
-    }
-
-    if (file_count == 0)
-        list_directory(".", &options);
-    else
-    {
-        for (i = 1; i < argc; i++)
-        {
-            if (argv[i][0] != '-')
-            {
-                struct stat statbuf;
-                if (lstat(argv[i], &statbuf) == -1)
-                {
-                    handle_error(argv[i]);
-                    continue;
-                }
-                if (S_ISDIR(statbuf.st_mode))
-                    list_directory(argv[i], &options);
-                else
-                {
-                    t_file_info *file = get_file_info(".", argv[i]);
-                    if (file)
-                    {
-                        print_file_info(file, &options);
-                        free_file_info_list(file);
-                    }
-                }
-            }
-        }
-    }
-
-    return 0;
+	options.flags = 0;
+	path_count = parse_options(argc, argv, &options);
+	if (path_count == -1)
+		return (1);
+	
+	if (path_count == 0)
+	{
+		paths = malloc(sizeof(char *) * 2);
+		if (!paths)
+			return (1);
+		paths[0] = ".";
+		paths[1] = NULL;
+	}
+	else
+	{
+		paths = malloc(sizeof(char *) * (path_count + 1));
+		if (!paths)
+			return (1);
+		j = 0;
+		i = 1;
+		while (i < argc)
+		{
+			if (!is_option(argv[i]))
+			{
+				paths[j] = argv[i];
+				j++;
+			}
+			i++;
+		}
+		paths[path_count] = NULL;
+	}
+	
+	ft_ls(paths, &options);
+	free(paths);
+	return (0);
 }

@@ -1,9 +1,11 @@
 #include "libft.h"
 
-char *ft_strcpy(char *dest, const char *src)
+char *ft_strcat(char *dest, const char *src)
 {
     char *ptr = dest;
 
+    while (*ptr)
+        ptr++;
     while (*src)
         *ptr++ = *src++;
     *ptr = '\0';

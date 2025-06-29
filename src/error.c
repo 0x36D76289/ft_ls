@@ -1,13 +1,27 @@
-#include "../includes/ft_ls.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#include "../include/ft_ls.h"
 
-void handle_error(const char *message)
+void	print_error(char *program, char *file, char *message)
 {
-    if (message)
-        fprintf(stderr, "ft_ls: %s: %s\n", message, strerror(errno));
-    else
-        fprintf(stderr, "ft_ls: %s\n", strerror(errno));
+	ft_putstr_fd(program, 2);
+	ft_putstr_fd(": ", 2);
+	if (file)
+	{
+		ft_putstr_fd(file, 2);
+		ft_putstr_fd(": ", 2);
+	}
+	ft_putstr_fd(message, 2);
+	ft_putstr_fd("\n", 2);
+}
+
+void	print_errno_error(char *program, char *file)
+{
+	ft_putstr_fd(program, 2);
+	ft_putstr_fd(": ", 2);
+	if (file)
+	{
+		ft_putstr_fd(file, 2);
+		ft_putstr_fd(": ", 2);
+	}
+	ft_putstr_fd(strerror(errno), 2);
+	ft_putstr_fd("\n", 2);
 }
