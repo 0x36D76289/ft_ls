@@ -1,16 +1,16 @@
 #include "../include/ft_ls.h"
 
-char	*join_path(char *dir, char *name)
+char *join_path(char *dir, char *name)
 {
-	char	*result;
-	char	*temp;
-	int		dir_len;
+	char *result;
+	char *temp;
+	int dir_len;
 
 	if (!dir || !name)
 		return (NULL);
 
 	dir_len = ft_strlen(dir);
-	
+
 	if (dir_len > 0 && dir[dir_len - 1] == '/')
 		return (ft_strjoin(dir, name));
 	else
@@ -24,12 +24,12 @@ char	*join_path(char *dir, char *name)
 	}
 }
 
-int	is_hidden_file(char *name)
+int is_hidden_file(char *name)
 {
 	return (name && name[0] == '.');
 }
 
-char	get_file_type(mode_t mode)
+char get_file_type(mode_t mode)
 {
 	if (S_ISDIR(mode))
 		return (TYPE_DIR);
@@ -45,4 +45,19 @@ char	get_file_type(mode_t mode)
 		return (TYPE_SOCK);
 	else
 		return (TYPE_REG);
+}
+
+int has_extended_attributes(char *path)
+{
+	ssize_t size;
+	struct stat file_stat;
+
+	if (!path)
+		return (0);
+
+	if (lstat(path, &file_stat) == 0 && S_ISLNK(file_stat.st_mode))
+		return (0);
+
+	size = listxattr(path, NULL, 0);
+	return (size > 0);
 }

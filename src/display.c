@@ -22,6 +22,16 @@ void display_permissions(mode_t mode)
 	ft_putchar_fd((mode & S_IXOTH) ? 'x' : '-', 1);
 }
 
+static void display_permissions_with_acl(t_file *file)
+{
+	display_permissions(file->stat.st_mode);
+
+	if (has_extended_attributes(file->path))
+		ft_putchar_fd('@', 1);
+	else
+		ft_putchar_fd(' ', 1);
+}
+
 static void print_right_aligned(char *str, int width)
 {
 	int len;
@@ -139,7 +149,7 @@ static void print_time(time_t time_val)
 		return;
 
 	month_day_time = time_str + 4;
-	
+
 	i = 0;
 	while (i < 12 && month_day_time[i])
 	{
@@ -152,7 +162,7 @@ static char *get_file_color(mode_t mode, t_options *options)
 {
 	if (!(options->flags & OPT_COLOR))
 		return ("");
-	
+
 	if (S_ISDIR(mode))
 		return (COLOR_DIR);
 	else if (S_ISLNK(mode))
@@ -167,13 +177,13 @@ static char *get_file_color(mode_t mode, t_options *options)
 		return (COLOR_FIFO);
 	else if (S_ISSOCK(mode))
 		return (COLOR_SOCK);
-	return (COLOR_REG);
+	return (COLOR_RESET);
 }
 
 static void print_colored_name(char *name, mode_t mode, t_options *options)
 {
 	char *color = get_file_color(mode, options);
-	
+
 	ft_putstr_fd(color, 1);
 	ft_putstr_fd(name, 1);
 	if (options->flags & OPT_COLOR)
@@ -238,7 +248,7 @@ static void print_groupname(gid_t gid, int width)
 
 static void display_long_format_with_widths(t_file *file, t_column_widths *widths, t_options *options)
 {
-	display_permissions(file->stat.st_mode);
+	display_permissions_with_acl(file);
 	ft_putchar_fd(' ', 1);
 
 	print_right_aligned_number(file->stat.st_nlink, widths->nlink_width);
@@ -265,7 +275,22 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 	ft_putchar_fd(' ', 1);
 
 	print_colored_name(file->name, file->stat.st_mode, options);
-	if (S_ISDIR(file->stat.st_mode))
+
+	// For symbolic links, show the target
+	if (S_ISLNK(file->stat.st_mode))
+	{
+		char link_target[1024];
+		ssize_t link_len;
+
+		link_len = readlink(file->path, link_target, sizeof(link_target) - 1);
+		if (link_len != -1)
+		{
+			link_target[link_len] = '\0';
+			ft_putstr_fd(" -> ", 1);
+			ft_putstr_fd(link_target, 1);
+		}
+	}
+	else if (S_ISDIR(file->stat.st_mode))
 		ft_putchar_fd('/', 1);
 	else if (file->stat.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
 		ft_putchar_fd('*', 1);
@@ -294,7 +319,7 @@ void display_files(t_file *files, t_options *options)
 		ft_putstr_fd("total ", 1);
 		print_right_aligned_number(calculate_total_blocks(files), 0);
 		ft_putchar_fd('\n', 1);
-		
+
 		while (current)
 		{
 			display_long_format_with_widths(current, &widths, options);

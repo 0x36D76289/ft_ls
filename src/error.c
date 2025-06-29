@@ -1,6 +1,6 @@
 #include "../include/ft_ls.h"
 
-void	print_error(char *program, char *file, char *message)
+void print_error(char *program, char *file, char *message)
 {
 	ft_putstr_fd(program, 2);
 	ft_putstr_fd(": ", 2);
@@ -13,7 +13,7 @@ void	print_error(char *program, char *file, char *message)
 	ft_putstr_fd("\n", 2);
 }
 
-void	print_errno_error(char *program, char *file)
+void print_errno_error(char *program, char *file)
 {
 	ft_putstr_fd(program, 2);
 	ft_putstr_fd(": ", 2);

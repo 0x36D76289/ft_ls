@@ -1,15 +1,15 @@
 #include "../include/ft_ls.h"
 
-static void	process_recursive(t_file *files, t_options *options)
+static void process_recursive(t_file *files, t_options *options)
 {
-	t_file	*current;
+	t_file *current;
 
 	current = files;
 	while (current)
 	{
 		if (S_ISDIR(current->stat.st_mode))
 		{
-			if (ft_strcmp(current->name, ".") != 0 && 
+			if (ft_strcmp(current->name, ".") != 0 &&
 				ft_strcmp(current->name, "..") != 0)
 			{
 				ft_putstr_fd("\n", 1);
@@ -22,10 +22,10 @@ static void	process_recursive(t_file *files, t_options *options)
 	}
 }
 
-int	list_directory(char *path, t_options *options)
+int list_directory(char *path, t_options *options)
 {
-	t_file		*files;
-	struct stat	path_stat;
+	t_file *files;
+	struct stat path_stat;
 
 	if (stat(path, &path_stat) == -1)
 	{
@@ -67,11 +67,11 @@ int	list_directory(char *path, t_options *options)
 	return (0);
 }
 
-int	ft_ls(char **paths, t_options *options)
+int ft_ls(char **paths, t_options *options)
 {
-	int		i;
-	int		error;
-	int		multiple_paths;
+	int i;
+	int error;
+	int multiple_paths;
 
 	i = 0;
 	error = 0;

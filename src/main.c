@@ -1,18 +1,18 @@
 #include "../include/ft_ls.h"
 
-int	main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-	t_options	options;
-	char		**paths;
-	int			path_count;
-	int			i;
-	int			j;
+	t_options options;
+	char **paths;
+	int path_count;
+	int i;
+	int j;
 
 	options.flags = 0;
 	path_count = parse_options(argc, argv, &options);
 	if (path_count == -1)
 		return (1);
-	
+
 	if (path_count == 0)
 	{
 		paths = malloc(sizeof(char *) * 2);
@@ -39,7 +39,7 @@ int	main(int argc, char **argv)
 		}
 		paths[path_count] = NULL;
 	}
-	
+
 	ft_ls(paths, &options);
 	free(paths);
 	return (0);
