@@ -254,7 +254,6 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 	print_right_aligned_number(file->stat.st_nlink, widths->nlink_width);
 	ft_putchar_fd(' ', 1);
 
-	// Option -g: skip owner information
 	if (!(options->flags & OPT_G))
 	{
 		print_username(file->stat.st_uid, widths->user_width);
@@ -267,7 +266,6 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 	print_right_aligned_number(file->stat.st_size, widths->size_width);
 	ft_putchar_fd(' ', 1);
 
-	// Option -u: show access time instead of modification time
 	if (options->flags & OPT_U)
 		print_time(file->stat.st_atime);
 	else
@@ -276,7 +274,6 @@ static void display_long_format_with_widths(t_file *file, t_column_widths *width
 
 	print_colored_name(file->name, file->stat.st_mode, options);
 
-	// For symbolic links, show the target
 	if (S_ISLNK(file->stat.st_mode))
 	{
 		char link_target[1024];
