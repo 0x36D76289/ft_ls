@@ -1,12 +1,15 @@
-#include "../includes/libft.h"
+#include "libft.h"
 
-void *ft_memcpy(void *dst, const void *src, size_t n) {
-  unsigned char *d;
-  const unsigned char *s;
+void *ft_memcpy(void *dest, const void *src, size_t n)
+{
+    unsigned char *dest_ptr;
+    const unsigned char *src_ptr;
 
-  d = dst;
-  s = src;
-  while (n--)
-    *d++ = *s++;
-  return (dst);
+    if (!dest && !src)
+        return (NULL);
+    dest_ptr = (unsigned char *)dest;
+    src_ptr = (const unsigned char *)src;
+    while (n--)
+        *dest_ptr++ = *src_ptr++;
+    return (dest);
 }

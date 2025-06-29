@@ -1,32 +1,65 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::   #
+#    Makefile                                           :+:      :+:    :+:   #
+#                                                     +:+ +:+         +:+     #
+#    By: cfrancie <cfrancie@student.42.fr>            +#+  +:+       +#+        #
+#                                                 +#+#+#+#+#+   +#+           #
+#    Created: 2025/06/26 00:00:00 by cfrancie           #+#    #+#             #
+#    Updated: 2025/06/26 00:00:00 by cfrancie          ###   ########.fr       #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = ft_ls
 
-SRC_DIR = src
-OBJ_DIR = obj
-INC_DIR = include
+# Directories
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
+LIBFTDIR = libft
 
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-INCLUDES = -I$(INC_DIR)
+# Source files
+SRCFILES = main.c \
+		   options.c \
+		   ft_ls.c \
+		   file_info.c \
+		   sorting.c \
+		   display.c \
+		   utils.c \
+		   error.c \
 
+SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
+OBJS = $(addprefix $(OBJDIR)/, $(SRCFILES:.c=.o))
+
+# Compiler and flags
 CC = cc
-CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
+CFLAGS = -Wall -Wextra -Werror
+INCLUDES = -I$(INCDIR) -I$(LIBFTDIR)/include
 
+# Libraries
+LIBFT = $(LIBFTDIR)/libft.a
+
+# Rules
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+$(NAME): $(LIBFT) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -L$(LIBFTDIR) -lft -o $(NAME)
+	@echo "ft_ls compiled successfully!"
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(LIBFT):
+	@make -C $(LIBFTDIR)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJDIR)
+	@make -C $(LIBFTDIR) clean
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
+	@make -C $(LIBFTDIR) fclean
 
 re: fclean all
 
