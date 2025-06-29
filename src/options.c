@@ -1,6 +1,6 @@
 #include "../include/ft_ls.h"
 
-static int	parse_option_char(char c, t_options *options)
+static int parse_option_char(char c, t_options *options)
 {
 	if (c == 'l')
 		options->flags |= OPT_L;
@@ -32,9 +32,9 @@ static int	parse_option_char(char c, t_options *options)
 	return (0);
 }
 
-static int	parse_option_string(char *arg, t_options *options)
+static int parse_option_string(char *arg, t_options *options)
 {
-	int	i;
+	int i;
 
 	i = 1;
 	while (arg[i])
@@ -46,15 +46,15 @@ static int	parse_option_string(char *arg, t_options *options)
 	return (0);
 }
 
-int	is_option(char *arg)
+int is_option(char *arg)
 {
 	return (arg && arg[0] == '-' && arg[1]);
 }
 
-int	parse_options(int argc, char **argv, t_options *options)
+int parse_options(int argc, char **argv, t_options *options)
 {
-	int	i;
-	int	path_count;
+	int i;
+	int path_count;
 
 	i = 1;
 	path_count = 0;

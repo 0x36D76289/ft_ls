@@ -1,8 +1,8 @@
 #include "../include/ft_ls.h"
 
-static int	compare_files(t_file *a, t_file *b, t_options *options)
+static int compare_files(t_file *a, t_file *b, t_options *options)
 {
-	int	result;
+	int result;
 
 	if (options->flags & OPT_F)
 		return (0);
@@ -10,7 +10,7 @@ static int	compare_files(t_file *a, t_file *b, t_options *options)
 	if (options->flags & OPT_T)
 	{
 		time_t time_a, time_b;
-		
+
 		if (options->flags & OPT_U)
 		{
 			time_a = a->stat.st_atime;
@@ -35,11 +35,11 @@ static int	compare_files(t_file *a, t_file *b, t_options *options)
 	return (result);
 }
 
-static void	swap_files(t_file *a, t_file *b)
+static void swap_files(t_file *a, t_file *b)
 {
-	char		*temp_name;
-	char		*temp_path;
-	struct stat	temp_stat;
+	char *temp_name;
+	char *temp_path;
+	struct stat temp_stat;
 
 	temp_name = a->name;
 	temp_path = a->path;
@@ -54,11 +54,11 @@ static void	swap_files(t_file *a, t_file *b)
 	b->stat = temp_stat;
 }
 
-static void	bubble_sort(t_file *files, t_options *options)
+static void bubble_sort(t_file *files, t_options *options)
 {
-	int		swapped;
-	t_file	*current;
-	t_file	*last;
+	int swapped;
+	t_file *current;
+	t_file *last;
 
 	if (!files)
 		return;
@@ -81,11 +81,11 @@ static void	bubble_sort(t_file *files, t_options *options)
 	} while (swapped);
 }
 
-void	reverse_list(t_file **files)
+void reverse_list(t_file **files)
 {
-	t_file	*prev;
-	t_file	*current;
-	t_file	*next;
+	t_file *prev;
+	t_file *current;
+	t_file *next;
 
 	prev = NULL;
 	current = *files;
@@ -100,12 +100,11 @@ void	reverse_list(t_file **files)
 	*files = prev;
 }
 
-void	sort_files(t_file **files, t_options *options)
+void sort_files(t_file **files, t_options *options)
 {
 	if (!files || !*files)
 		return;
 
-	// Option -f: do not sort at all
 	if (options->flags & OPT_F)
 		return;
 

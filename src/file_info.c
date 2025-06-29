@@ -1,13 +1,13 @@
 #include "../include/ft_ls.h"
 
-t_file	*create_file_node(char *name, char *path)
+t_file *create_file_node(char *name, char *path)
 {
-	t_file	*new_file;
+	t_file *new_file;
 
 	new_file = malloc(sizeof(t_file));
 	if (!new_file)
 		return (NULL);
-	
+
 	new_file->name = ft_strdup(name);
 	new_file->path = ft_strdup(path);
 	if (!new_file->name || !new_file->path)
@@ -30,29 +30,29 @@ t_file	*create_file_node(char *name, char *path)
 	return (new_file);
 }
 
-static void	add_file_to_list(t_file **files, t_file *new_file)
+static void add_file_to_list(t_file **files, t_file *new_file)
 {
-	t_file	*current;
+	t_file *current;
 
 	if (!*files)
 	{
 		*files = new_file;
 		return;
 	}
-	
+
 	current = *files;
 	while (current->next)
 		current = current->next;
 	current->next = new_file;
 }
 
-t_file	*get_file_list(char *dir_path, t_options *options)
+t_file *get_file_list(char *dir_path, t_options *options)
 {
-	DIR				*dir;
-	struct dirent	*entry;
-	t_file			*files;
-	t_file			*new_file;
-	char			*full_path;
+	DIR *dir;
+	struct dirent *entry;
+	t_file *files;
+	t_file *new_file;
+	char *full_path;
 
 	dir = opendir(dir_path);
 	if (!dir)
@@ -81,10 +81,10 @@ t_file	*get_file_list(char *dir_path, t_options *options)
 	return (files);
 }
 
-void	free_file_list(t_file *files)
+void free_file_list(t_file *files)
 {
-	t_file	*current;
-	t_file	*next;
+	t_file *current;
+	t_file *next;
 
 	current = files;
 	while (current)
