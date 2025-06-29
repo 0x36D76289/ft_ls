@@ -1,23 +1,9 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::   #
-#    Makefile                                           :+:      :+:    :+:   #
-#                                                     +:+ +:+         +:+     #
-#    By: cfrancie <cfrancie@student.42.fr>            +#+  +:+       +#+        #
-#                                                 +#+#+#+#+#+   +#+           #
-#    Created: 2025/06/26 00:00:00 by cfrancie           #+#    #+#             #
-#    Updated: 2025/06/26 00:00:00 by cfrancie          ###   ########.fr       #
-#                                                                              #
-# **************************************************************************** #
-
 NAME = libft.a
 
-# Directories
 SRCDIR = src
 INCDIR = include
 OBJDIR = obj
 
-# Source files
 SRCFILES = ft_atoi.c \
 			ft_calloc.c \
 			ft_isalpha.c \
@@ -54,12 +40,10 @@ SRCFILES = ft_atoi.c \
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(addprefix $(OBJDIR)/, $(SRCFILES:.c=.o))
 
-# Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 INCLUDES = -I$(INCDIR)
 
-# Rules
 all: $(NAME)
 
 $(NAME): $(OBJS)
