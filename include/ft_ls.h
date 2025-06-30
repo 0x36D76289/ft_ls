@@ -22,7 +22,7 @@
 #define OPT_T 16	  // -t: sort by time
 #define OPT_U 32	  // -u: sort by access time / show access time
 #define OPT_F 64	  // -f: do not sort
-#define OPT_G 128	  // -g: long format without owner / colorized output
+#define OPT_G 128	  // -g: long format without owner
 #define OPT_D 256	  // -d: list directories themselves
 #define OPT_COLOR 512 // -G: colorized output
 
